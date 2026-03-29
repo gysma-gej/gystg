@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>GysTG</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg: #0f0f13;
+            --surface: #1a1a24;
+            --border: #2a2a32;
+            --text: #eef2ff;
+            --text-secondary: #8e8e93;
+            --primary: #3b82f6;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --gold: #fbbf24;
+        }
+        body.light {
+            --bg: #f5f5f7;
+            --surface: #ffffff;
+            --border: #e5e5ea;
+            --text: #1a1a1e;
+            --text-secondary: #6c6c70;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+            padding-bottom: 70px;
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 16px; }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            max-width: 600px;
+            margin: 0 auto;
+            background: var(--surface);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 20px 24px;
+            border-top: 1px solid var(--border);
+            z-index: 100;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 20px;
+            transition: 0.2s;
+        }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 24px; }
+        .card {
+            background: var(--surface);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+            transition: 0.2s;
+        }
+        .btn {
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: none;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-gold { background: var(--gold); color: #1a1a1e; }
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            margin: 0 auto 16px;
+            background-size: cover;
+            background-position: center;
+        }
+        .avatar-small {
+            width: 44px;
+            height: 44px;
+            font-size: 18px;
+            margin: 0;
+        }
+        .input-group { width: 100%; margin-bottom: 16px; }
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text);
+            font-size: 16px;
+            font-family: inherit;
+        }
+        .flex-row { display: flex; align-items: center; gap: 12px; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .dev-badge {
+            background: var(--gold);
+            color: #000;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .verified-icon { color: var(--primary); font-size: 16px; margin-left: 4px; }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 90%;
+            width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .balance {
+            background: var(--gold);
+            color: #1a1a1e;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .username-at { color: var(--primary); font-family: monospace; font-size: 14px; }
+        .user-item {
+            background: var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .user-item:hover { background: var(--primary); }
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-online { background: var(--success); }
+        .status-offline { background: var(--text-secondary); }
+        .auth-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+        .logo { font-size: 28px; font-weight: bold; }
+        .big-logo { font-size: 48px; font-weight: bold; margin-bottom: 40px; }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--primary); }
+        .dev-btn { position: fixed; top: 10px; right: 10px; z-index: 200; }
+        .case-square {
+            width: 100px;
+            height: 100px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 0 auto;
+            font-size: 40px;
+        }
+        .case-normal { background: linear-gradient(135deg, #606060, #404040); }
+        .case-legendary { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .case-unique { background: linear-gradient(135deg, #ff0000, #ff00ff, #0000ff); }
+        .color-item {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            margin: 0 auto 4px;
+        }
+        .rainbow-text {
+            background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: rainbow 3s linear infinite;
+        }
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        .shimmer { animation: shimmer 1.5s infinite; }
+        @keyframes shimmer {
+            0% { opacity: 0.5; text-shadow: 0 0 5px currentColor; }
+            50% { opacity: 1; text-shadow: 0 0 15px currentColor; }
+            100% { opacity: 0.5; text-shadow: 0 0 5px currentColor; }
+        }
+        .market-item {
+            background: var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .market-item:hover { background: var(--primary); transform: translateX(4px); }
+        .float-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--primary);
+            color: white;
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 150;
+            border: none;
+        }
+        .float-btn:hover { transform: scale(1.05); }
+        .easter-egg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            cursor: pointer;
+        }
+        .easter-egg pre { color: #ff69b4; font-family: monospace; font-size: 10px; white-space: pre-wrap; text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let currentUser = null;
+        let usersList = [];
+        let messagesList = [];
+        let favoritesList = [];
+        let blockedList = [];
+        let marketListings = [];
+        let theme = localStorage.getItem('theme') || 'dark';
+        
+        const normalColors = [
+            { name: 'Серый', color: '#808080' },
+            { name: 'Синий', color: '#0000FF' },
+            { name: 'Бирюзовый', color: '#40E0D0' },
+            { name: 'Тёмно-зелёный', color: '#006400' },
+            { name: 'Фиолетовый', color: '#800080' },
+            { name: 'Болотный', color: '#4F7942' }
+        ];
+        const legendaryColors = [
+            { name: 'Золотой', color: '#FFD700' },
+            { name: 'Оранжевый', color: '#FFA500' },
+            { name: 'Красный', color: '#FF0000' },
+            { name: 'Розовый', color: '#FF69B4' },
+            { name: 'Фуксия', color: '#FF00FF' },
+            { name: 'Ярко-фиолетовый', color: '#AA00FF' }
+        ];
+        const uniqueColors = [
+            { name: 'Радужный (статика)', color: 'rainbow_static', special: true },
+            { name: 'Радужный переливающийся', color: 'rainbow_animated', special: true },
+            { name: 'Переливающийся синий', color: 'shimmer_blue', special: true },
+            { name: 'Переливающийся зелёный', color: 'shimmer_green', special: true },
+            { name: 'Переливающийся жёлтый', color: 'shimmer_yellow', special: true },
+            { name: 'Переливающийся красный', color: 'shimmer_red', special: true }
+        ];
+        const allColors = [...normalColors, ...legendaryColors, ...uniqueColors];
+        
+        function applyTheme() {
+            if (theme === 'light') document.body.classList.add('light');
+            else document.body.classList.remove('light');
+        }
+        applyTheme();
+        
+        function escapeHtml(s) {
+            if (!s) return '';
+            let d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+        
+        function getBalance() { return currentUser?.balance || 0; }
+        function getInventory() { return currentUser?.inventory || { 'Чёрный': 1 }; }
+        
+        function getNicknameWithColor(u) {
+            if (!u) return '';
+            let c = u.selected_color;
+            if (!c || c === 'Чёрный') return escapeHtml(u.username);
+            if (c === 'Радужный (статика)' || c === 'Радужный переливающийся') return `<span class="rainbow-text">${escapeHtml(u.username)}</span>`;
+            if (c === 'Переливающийся синий') return `<span style="color:#00F;animation:shimmer 1.5s infinite">${escapeHtml(u.username)}</span>`;
+            if (c === 'Переливающийся зелёный') return `<span style="color:#0F0;animation:shimmer 1.5s infinite">${escapeHtml(u.username)}</span>`;
+            if (c === 'Переливающийся жёлтый') return `<span style="color:#FF0;animation:shimmer 1.5s infinite">${escapeHtml(u.username)}</span>`;
+            if (c === 'Переливающийся красный') return `<span style="color:#F00;animation:shimmer 1.5s infinite">${escapeHtml(u.username)}</span>`;
+            let ci = allColors.find(x => x.name === c);
+            if (ci && ci.color) return `<span style="color:${ci.color}">${escapeHtml(u.username)}</span>`;
+            return escapeHtml(u.username);
+        }
+        
+        function getLastSeenText(u) {
+            if (u.id === currentUser?.id) return null;
+            if (u.is_online) return '🟢 В сети';
+            if (u.hide_last_seen) return '👻 Недавно';
+            if (!u.last_seen) return 'Был(а) недавно';
+            let last = new Date(u.last_seen);
+            let minutes = Math.floor((Date.now() - last) / 60000);
+            if (minutes < 1) return 'Был(а) только что';
+            if (minutes < 60) return `Был(а) ${minutes} мин назад`;
+            let hours = Math.floor(minutes / 60);
+            if (hours < 24) return `Был(а) ${hours} ч назад`;
+            let days = Math.floor(hours / 24);
+            return `Был(а) ${days} дн назад`;
+        }
+        
+        function showEasterEgg67() {
+            let d = document.createElement('div');
+            d.className = 'easter-egg';
+            d.onclick = () => d.remove();
+            let img = document.createElement('img');
+            img.src = 'https://i.pinimg.com/originals/6e/7e/6e/6e7e6e7e6e7e6e7e6e7e6e7e6e7e6e7e.jpg';
+            img.style.maxWidth = '90%';
+            img.style.borderRadius = '20px';
+            d.appendChild(img);
+            document.body.appendChild(d);
+        }
+        
+        function showEasterEggDot() {
+            let d = document.createElement('div');
+            d.className = 'easter-egg';
+            d.onclick = () => d.remove();
+            let p = document.createElement('pre');
+            p.textContent = `СЕКС\n\n⠄⠄⠄⠄⠄⠄⠄⠄⣀⣠⣤⣤⣤⣄⡀⠄⠄⠄\n⠄⠄⠄⠄⠄⠄⣴⣿⣿⣿⡿⣿⡿⣗⢌⢳⡀⠄\n⠄⠄⠄⠄⠄⣼⣿⡇⣿⠹⡸⡹⣷⡹⡎⣧⢳⠄\n⠄⠄⠄⠄⠄⣿⣿⠱⡙⠰⣢⡱⢹⡇⡷⢸⢸⠄\n⠄⠄⠄⠄⠄⢿⢸⡈⣉⣤⠠⣴⡄⡇⠁⠄⢸⠄\n⠄⠄⠄⠄⠄⠸⡆⡃⡙⢍⣹⡿⢓⠄⠤⣐⡟⠄\n⠄⠄⠄⠄⠄⠄⠙⠾⠾⠮⣵⢸⡔⢷⣍⠉⠄⠄\n⠄⠄⠄⠄⢀⣴⣾⣿⣷⡺⡋⢞⣎⣚⣛⣳⣴⣶\n⠄⠄⠄⠄⢘⣛⣩⣾⣿⣿⣿⣶⣶⣿⣿⣿⣿⣿\n⠄⠄⣀⠺⣿⣿⣿⠟⣡⣾⠿⢿⣿⣿⡎⢋⠻⣿\n⠄⠄⣉⣠⣿⣿⡏⣼⣿⠁⠶⠄⣿⣿⡇⡼⠄⠈\n⠄⠄⣈⠻⠿⠟⢁⠘⢿⣷⣶⣾⣿⠟⡰⠃⠄⠄\n⠄⣴⣿⣧⢻⣿⣿⣷⣦⣬⣉⣩⣴⠞⠁⠄⠄⠄\n⠄⠘⠿⠿⢸⣿⣿⣿⣿⣿⣿⣿⠁⠄⠄⠄⠄⠄\n⠄⢤⡝⣧⢸⣿⣿⣿⣿⣿⣿⠟⠄⠄⠄⠄⠄⠄\n⣜⢧⠻⣀⢿⣿⣿⣿⣿⣿⠏⣾⣧⡀⠄⠄⠄⠄\n⠹⢂⣾⣿⠸⣿⣿⣿⣿⡏⣼⣿⣿⣷⠄⠄⠄⠄\n⠄⣿⣿⣿⣧⠹⣿⢻⡿⢰⣿⣿⣿⣿⣇⠄⠄⠄\n⢸⣿⣿⣿⣿⣇⢹⢸⢁⣿⣿⣿⣿⣿⣿⡆⠄⠄\n⢸⣿⣿⣿⣿⣿⣆⠄⣿⣿⣿⣿⣿⣿⣿⡇⠄⠄\n⠸⣿⣿⣿⣿⣿⣿⠄⢿⣿⣿⣿⣿⣿⣿⡇⠄⠄\n⠄⣿⣿⣿⣿⣿⣿⠄⠈⣿⣿⣿⣿⣿⣿⡇⠄⠄`;
+            d.appendChild(p);
+            document.body.appendChild(d);
+        }
+        
+        async function loadData() {
+            if (!currentUser) return;
+            let res = await fetch(`${API_URL}/api/users`);
+            usersList = await res.json();
+            let msgsRes = await fetch(`${API_URL}/api/messages/${currentUser.id}`);
+            messagesList = await msgsRes.json();
+            let favRes = await fetch(`${API_URL}/api/favorites/${currentUser.id}`);
+            favoritesList = await favRes.json();
+            let blockRes = await fetch(`${API_URL}/api/blocked/${currentUser.id}`);
+            blockedList = await blockRes.json();
+            let marketRes = await fetch(`${API_URL}/api/market`);
+            marketListings = await marketRes.json();
+        }
+        
+        async function checkSession() {
+            let savedId = localStorage.getItem('userId');
+            if (savedId) {
+                try {
+                    let res = await fetch(`${API_URL}/api/users`);
+                    let users = await res.json();
+                    let user = users.find(u => u.id === savedId);
+                    if (user) {
+                        currentUser = user;
+                        await fetch(`${API_URL}/api/users/${currentUser.id}/online`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ is_online: true })
+                        });
+                        await loadData();
+                        showMain();
+                        return;
+                    }
+                } catch(e) { console.log(e); }
+            }
+            showAuth();
+        }
+        
+        function showAuth() {
+            document.getElementById('app').innerHTML = `
+                <div class="auth-screen">
+                    <div class="big-logo">GysTG</div>
+                    <div class="card" style="width: 100%; max-width: 350px; text-align: center;">
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;" onclick="showLogin()">Войти</button>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="showRegister()">Зарегистрироваться</button>
+                    </div>
+                    <div id="formContainer" style="width: 100%; max-width: 350px;"></div>
+                </div>
+            `;
+        }
+        
+        window.showLogin = function() {
+            document.getElementById('formContainer').innerHTML = `
+                <div class="card">
+                    <input type="email" id="loginEmail" placeholder="Почта">
+                    <input type="password" id="loginPass" placeholder="Пароль">
+                    <button class="btn btn-primary" style="width: 100%;" onclick="doLogin()">Войти</button>
+                </div>
+            `;
+        };
+        
+        window.showRegister = function() {
+            document.getElementById('formContainer').innerHTML = `
+                <div class="card">
+                    <input type="email" id="regEmail" placeholder="Почта">
+                    <input type="text" id="regName" placeholder="Имя">
+                    <input type="text" id="regTag" placeholder="@юзернейм">
+                    <input type="password" id="regPass" placeholder="Пароль">
+                    <button class="btn btn-primary" style="width: 100%;" onclick="doRegister()">Зарегистрироваться</button>
+                </div>
+            `;
+        };
+        
+        window.doLogin = async function() {
+            let email = document.getElementById('loginEmail').value;
+            let pass = document.getElementById('loginPass').value;
+            
+            let res = await fetch(`${API_URL}/api/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password: pass })
+            });
+            
+            if (!res.ok) {
+                alert('Неверный email или пароль');
+                return;
+            }
+            
+            currentUser = await res.json();
+            localStorage.setItem('userId', currentUser.id);
+            await fetch(`${API_URL}/api/users/${currentUser.id}/online`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_online: true })
+            });
+            await loadData();
+            showMain();
+        };
+        
+        window.doRegister = async function() {
+            let email = document.getElementById('regEmail').value;
+            let name = document.getElementById('regName').value;
+            let tag = document.getElementById('regTag').value.trim();
+            let pass = document.getElementById('regPass').value;
+            
+            if (!tag.startsWith('@')) tag = '@' + tag;
+            
+            let code = Math.floor(10000 + Math.random() * 90000);
+            let userCode = prompt(`Код подтверждения: ${code}\nВведите код:`);
+            if (userCode !== String(code)) {
+                alert('Неверный код');
+                return;
+            }
+            
+            let res = await fetch(`${API_URL}/api/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, username: name, user_tag: tag, password: pass })
+            });
+            
+            if (!res.ok) {
+                let err = await res.json();
+                alert(err.error);
+                return;
+            }
+            
+            currentUser = await res.json();
+            localStorage.setItem('userId', currentUser.id);
+            await fetch(`${API_URL}/api/users/${currentUser.id}/online`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ is_online: true })
+            });
+            await loadData();
+            showMain();
+        };
+        
+        function showMain() {
+            let isDev = currentUser.email === 'savostinmatvej501@gmail.com';
+            
+            document.getElementById('app').innerHTML = `
+                <div class="container">
+                    <div class="flex-between" style="margin: 16px 0;">
+                        <div class="logo">GysTG</div>
+                        <div class="balance" onclick="openShop()">🪙 ${getBalance()}</div>
+                    </div>
+                    <div id="mainContent"></div>
+                </div>
+                <div class="bottom-nav">
+                    <button class="nav-item" onclick="switchTab('chats')"><div class="nav-icon">💬</div><span>Чаты</span></button>
+                    <button class="nav-item" onclick="switchTab('shop')"><div class="nav-icon">🛒</div><span>Магазин</span></button>
+                    <button class="nav-item" onclick="switchTab('settings')"><div class="nav-icon">⚙️</div><span>Настройки</span></button>
+                    <button class="nav-item" onclick="switchTab('profile')"><div class="nav-icon">👤</div><span>Профиль</span></button>
+                </div>
+            `;
+            
+            if (isDev && !document.querySelector('.dev-btn')) {
+                let btn = document.createElement('div');
+                btn.className = 'dev-btn';
+                btn.innerHTML = `<button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="openDevPanel()">👨‍💻 DEV</button>`;
+                document.body.appendChild(btn);
+            }
+            
+            window.currentTab = 'profile';
+            renderTabContent();
+        }
+        
+        window.switchTab = function(tab) {
+            window.currentTab = tab;
+            renderTabContent();
+        };
+        
+        function renderTabContent() {
+            let div = document.getElementById('mainContent');
+            if (!div) return;
+            if (window.currentTab === 'chats') renderChats(div);
+            else if (window.currentTab === 'shop') renderShop(div);
+            else if (window.currentTab === 'settings') renderSettings(div);
+            else if (window.currentTab === 'profile') renderProfile(div);
+        }
+        
+        function renderProfile(div) {
+            let isDev = currentUser.email === 'savostinmatvej501@gmail.com';
+            div.innerHTML = `
+                <div class="card" style="text-align: center;">
+                    <div class="flex-between" style="margin-bottom: 16px;">
+                        <button class="btn btn-secondary" style="padding: 8px 12px;" onclick="toggleTheme()">${theme === 'dark' ? '☀️' : '🌙'}</button>
+                    </div>
+                    <div class="avatar" style="background-image: url('${currentUser.avatar || ''}'); background-size: cover;">
+                        ${!currentUser.avatar ? currentUser.username[0].toUpperCase() : ''}
+                    </div>
+                    <h2>${getNicknameWithColor(currentUser)} ${currentUser.verified ? '<span class="verified-icon">✓</span>' : ''}</h2>
+                    <div class="username-at">${escapeHtml(currentUser.user_tag)}</div>
+                    ${isDev ? '<span class="dev-badge">dev</span>' : ''}
+                    <p style="margin: 16px 0;">${escapeHtml(currentUser.bio || 'Ничего не написано')}</p>
+                    <div class="balance" style="display: inline-block; margin-bottom: 16px;" onclick="openShop()">🪙 ${getBalance()}</div>
+                    <div style="display: flex; gap: 12px;">
+                        <label class="btn btn-secondary" style="flex:1; cursor: pointer;">📸 Фото<input type="file" accept="image/*" style="display:none" onchange="uploadAvatar(this)"></label>
+                        <button class="btn btn-secondary" style="flex:1;" onclick="openEditProfile()">✏️ Ред</button>
+                    </div>
+                    <button class="btn btn-secondary" style="width:100%; margin-top: 16px;" onclick="logout()">Выйти</button>
+                    <button class="btn btn-danger" style="width:100%; margin-top: 8px;" onclick="deleteAccount()">Удалить</button>
+                </div>
+            `;
+        }
+        
+        function renderChats(div) {
+            let others = usersList.filter(u => u.id !== currentUser.id);
+            div.innerHTML = `
+                <div class="card">
+                    <input type="text" id="searchChat" placeholder="🔍 Поиск..." onkeyup="filterChats()">
+                </div>
+                <div id="chatList">
+                    ${others.map(u => {
+                        let isBlocked = blockedList.includes(u.id);
+                        return `
+                        <div class="user-item" onclick="openChatWith('${u.id}')">
+                            <div>
+                                <strong>${getNicknameWithColor(u)}</strong>
+                                <div class="username-at">${escapeHtml(u.user_tag)}</div>
+                            </div>
+                            <div>
+                                <span class="status-dot ${u.is_online ? 'status-online' : 'status-offline'}"></span>
+                                🪙 ${u.balance}
+                                ${isBlocked ? '<span style="color:#ef4444; margin-left:8px;">🔴</span>' : ''}
+                            </div>
+                        </div>
+                    `}).join('')}
+                    ${others.length === 0 ? '<div class="card" style="text-align:center;">Нет других пользователей</div>' : ''}
+                </div>
+            `;
+        }
+        
+        window.filterChats = function() {
+            let search = document.getElementById('searchChat').value.toLowerCase();
+            let others = usersList.filter(u => u.id !== currentUser.id);
+            let filtered = others.filter(u => u.username.toLowerCase().includes(search));
+            let listDiv = document.getElementById('chatList');
+            if (listDiv) {
+                listDiv.innerHTML = filtered.map(u => `
+                    <div class="user-item" onclick="openChatWith('${u.id}')">
+                        <div>
+                            <strong>${getNicknameWithColor(u)}</strong>
+                            <div class="username-at">${escapeHtml(u.user_tag)}</div>
+                        </div>
+                        <div>
+                            <span class="status-dot ${u.is_online ? 'status-online' : 'status-offline'}"></span>
+                            🪙 ${u.balance}
+                        </div>
+                    </div>
+                `).join('');
+                if (filtered.length === 0) listDiv.innerHTML = '<div class="card" style="text-align:center;">Пользователь не найден</div>';
+            }
+        };
+        
+        window.openChatWith = async function(userId) {
+            let otherUser = usersList.find(u => u.id === userId);
+            if (!otherUser) return;
+            
+            let chatMessages = messagesList.filter(m => 
+                (m.from_user === currentUser.id && m.to_user === userId) || 
+                (m.from_user === userId && m.to_user === currentUser.id)
+            ).sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="width: 90%; max-width: 500px; height: 70vh; display: flex; flex-direction: column;">
+                    <div class="flex-between" style="margin-bottom: 16px;">
+                        <h3>Чат с ${escapeHtml(otherUser.username)}</h3>
+                        <button class="btn btn-secondary" style="padding: 6px 12px;" onclick="closeModal()">✕</button>
+                    </div>
+                    <div style="flex: 1; overflow-y: auto; margin-bottom: 16px;" id="chatMessages">
+                        ${chatMessages.map(m => `
+                            <div style="text-align: ${m.from_user === currentUser.id ? 'right' : 'left'}; margin-bottom: 12px;">
+                                <div class="card" style="display: inline-block; max-width: 80%; background: ${m.from_user === currentUser.id ? 'var(--primary)' : 'var(--border)'}; padding: 10px 16px;">
+                                    ${escapeHtml(m.text)}
+                                    <div style="font-size: 10px;">${new Date(m.timestamp).toLocaleTimeString()}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="flex-row">
+                        <input type="text" id="messageInput" placeholder="Сообщение..." style="flex: 1; padding: 12px; border-radius: 30px;">
+                        <button class="btn btn-primary" onclick="sendMessageTo('${userId}')">📤</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            setTimeout(() => {
+                let msgsDiv = document.getElementById('chatMessages');
+                if (msgsDiv) msgsDiv.scrollTop = msgsDiv.scrollHeight;
+            }, 100);
+        };
+        
+        window.sendMessageTo = async function(userId) {
+            let input = document.getElementById('messageInput');
+            let text = input.value.trim();
+            if (!text) return;
+            
+            await fetch(`${API_URL}/api/messages`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ from_user: currentUser.id, to_user: userId, text: text })
+            });
+            input.value = '';
+            await loadData();
+            openChatWith(userId);
+        };
+        
+        function renderSettings(div) {
+            div.innerHTML = `
+                <div class="card">
+                    <h3>⚙️ Настройки</h3>
+                    <button class="btn btn-secondary" style="width:100%; margin-bottom: 16px;" onclick="openPrivacySettings()">🔒 Конфиденциальность</button>
+                    <p>Версия: 2.0</p>
+                    <button class="btn btn-secondary" style="width:100%; margin-top: 16px;" onclick="logout()">Выйти</button>
+                </div>
+            `;
+        }
+        
+        window.openPrivacySettings = async function() {
+            let privacyRes = await fetch(`${API_URL}/api/privacy/${currentUser.id}`);
+            let privacy = await privacyRes.json();
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3 style="margin-bottom: 16px;">🔒 Конфиденциальность</h3>
+                    <div class="flex-between"><span>Показывать почту</span><label class="switch"><input type="checkbox" id="privacyEmail" ${privacy.show_email ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <div class="flex-between"><span>Показывать имя</span><label class="switch"><input type="checkbox" id="privacyUsername" ${privacy.show_username ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <div class="flex-between"><span>Показывать @юзернейм</span><label class="switch"><input type="checkbox" id="privacyTag" ${privacy.show_user_tag ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <div class="flex-between"><span>Показывать аватар</span><label class="switch"><input type="checkbox" id="privacyAvatar" ${privacy.show_avatar ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <div class="flex-between"><span>Показывать "О себе"</span><label class="switch"><input type="checkbox" id="privacyBio" ${privacy.show_bio ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <button class="btn btn-primary" style="width:100%; margin-top: 16px;" onclick="savePrivacySettings()">Сохранить</button>
+                    <button class="btn btn-secondary" style="width:100%; margin-top: 8px;" onclick="closeModal()">Отмена</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.savePrivacySettings = async function() {
+            await fetch(`${API_URL}/api/privacy/${currentUser.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    show_email: document.getElementById('privacyEmail').checked ? 1 : 0,
+                    show_username: document.getElementById('privacyUsername').checked ? 1 : 0,
+                    show_user_tag: document.getElementById('privacyTag').checked ? 1 : 0,
+                    show_avatar: document.getElementById('privacyAvatar').checked ? 1 : 0,
+                    show_bio: document.getElementById('privacyBio').checked ? 1 : 0
+                })
+            });
+            alert('Настройки сохранены');
+            closeModal();
+        };
+        
+        // ============ МАГАЗИН ============
+        window.openShop = function() {
+            renderTabContent();
+            window.currentTab = 'shop';
+            renderTabContent();
+        };
+        
+        function renderShop(div) {
+            div.innerHTML = `
+                <div class="card" style="text-align: center;">
+                    <h3>🛒 Магазин Gyscoin</h3>
+                    <div class="balance" style="display: inline-block; margin: 16px 0;">🪙 ${getBalance()}</div>
+                    <div style="display: flex; gap: 16px; justify-content: center;">
+                        <button class="btn btn-primary" onclick="openCases()">🎁 Кейсы</button>
+                        <button class="btn btn-primary" onclick="openInventory()">📦 Инвентарь</button>
+                        <button class="btn btn-primary" onclick="openMarket()">🏪 Рынок</button>
+                    </div>
+                    <button class="btn btn-gold" style="margin-top: 16px;" onclick="claimCoins()">🎁 +100 монет</button>
+                </div>
+            `;
+        }
+        
+        window.openCases = function() {
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="width: 90%; max-width: 500px;">
+                    <h3 style="margin-bottom: 16px;">🎁 Кейсы</h3>
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                        <div class="case-square case-normal" onclick="buyCase('normal', 50)">
+                            <div>📦</div>
+                            <div style="font-size: 12px;">Обычный</div>
+                            <div style="font-size: 10px;">50 монет</div>
+                        </div>
+                        <div class="case-square case-legendary" onclick="buyCase('legendary', 200)">
+                            <div>✨</div>
+                            <div style="font-size: 12px;">Легендарный</div>
+                            <div style="font-size: 10px;">200 монет</div>
+                        </div>
+                        <div class="case-square case-unique" onclick="buyCase('unique', 500)">
+                            <div>🌈</div>
+                            <div style="font-size: 12px;">Уникальный</div>
+                            <div style="font-size: 10px;">500 монет</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" style="width:100%; margin-top: 16px;" onclick="closeModal()">Закрыть</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.buyCase = async function(type, price) {
+            if (getBalance() < price) {
+                alert(`Недостаточно монет! Нужно ${price}`);
+                return;
+            }
+            
+            let newBalance = currentUser.balance - price;
+            let inventory = {...currentUser.inventory};
+            let caseKey = `Кейс: ${type}`;
+            inventory[caseKey] = (inventory[caseKey] || 0) + 1;
+            
+            await fetch(`${API_URL}/api/users/${currentUser.id}/balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: -price })
+            });
+            await fetch(`${API_URL}/api/users/${currentUser.id}/inventory`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ inventory: inventory })
+            });
+            
+            currentUser.balance = newBalance;
+            currentUser.inventory = inventory;
+            alert(`Вы купили ${type} кейс!`);
+            closeModal();
+            openInventory();
+        };
+        
+        window.openInventory = function() {
+            let inv = currentUser.inventory || { 'Чёрный': 1 };
+            let colors = Object.entries(inv).filter(([k]) => !k.startsWith('Кейс:'));
+            let cases = Object.entries(inv).filter(([k]) => k.startsWith('Кейс:'));
+            
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto;">
+                    <div class="flex-between"><h3>📦 Инвентарь</h3><button class="btn btn-secondary" onclick="closeModal()">✕</button></div>
+                    <h4>🎨 Цвета для ника:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+                        ${colors.map(([col, cnt]) => {
+                            let st = '#000';
+                            if (col === 'Чёрный') st = '#000';
+                            else {
+                                let ci = allColors.find(x => x.name === col);
+                                if (ci && ci.color && ci.color.startsWith('#')) st = ci.color;
+                                else st = 'linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)';
+                            }
+                            return `<div style="padding: 8px; text-align: center; cursor: pointer; background: var(--border); border-radius: 12px;" onclick="equipColor('${col}')">
+                                <div class="color-item" style="background: ${st};"></div>
+                                <div>${col}</div>
+                                <div style="font-size: 10px;">x${cnt}</div>
+                                ${currentUser.selected_color === col ? '<span style="color: green;">✓</span>' : ''}
+                            </div>`;
+                        }).join('')}
+                    </div>
+                    <h4>🎁 Кейсы:</h4>
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                        ${cases.map(([ci, cnt]) => {
+                            let ct = ci.split(': ')[1];
+                            let icon = ct === 'normal' ? '📦' : ct === 'legendary' ? '✨' : '🌈';
+                            return `<div style="text-align: center; padding: 8px; background: var(--border); border-radius: 12px; cursor: pointer;" onclick="openCase('${ct}')">
+                                <div style="font-size: 30px;">${icon}</div>
+                                <div>${ct === 'normal' ? 'Обычный' : ct === 'legendary' ? 'Легендарный' : 'Уникальный'}</div>
+                                <div>x${cnt}</div>
+                            </div>`;
+                        }).join('')}
+                        ${cases.length === 0 ? '<div>Нет кейсов</div>' : ''}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.openCase = async function(type) {
+            let colors = [];
+            if (type === 'normal') colors = normalColors;
+            else if (type === 'legendary') colors = legendaryColors;
+            else colors = uniqueColors;
+            
+            let randomColor = colors[Math.floor(Math.random() * colors.length)];
+            let inventory = {...currentUser.inventory};
+            let caseKey = `Кейс: ${type}`;
+            
+            if (!inventory[caseKey] || inventory[caseKey] <= 0) {
+                alert('Кейс не найден');
+                return;
+            }
+            
+            inventory[caseKey] -= 1;
+            if (inventory[caseKey] === 0) delete inventory[caseKey];
+            
+            if (inventory[randomColor.name]) {
+                inventory[randomColor.name] += 1;
+                let newBalance = currentUser.balance + 10;
+                await fetch(`${API_URL}/api/users/${currentUser.id}/balance`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: 10 })
+                });
+                currentUser.balance = newBalance;
+                alert(`🎉 Вам выпал цвет "${randomColor.name}", но он уже есть! +10 монет бонусом!`);
+            } else {
+                inventory[randomColor.name] = 1;
+                alert(`🎉 Поздравляем! Вам выпал цвет "${randomColor.name}"!`);
+            }
+            
+            await fetch(`${API_URL}/api/users/${currentUser.id}/inventory`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ inventory: inventory })
+            });
+            currentUser.inventory = inventory;
+            closeModal();
+            openInventory();
+        };
+        
+        window.equipColor = async function(col) {
+            if (col === 'Чёрный') {
+                await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ selected_color: 'Чёрный' })
+                });
+                currentUser.selected_color = 'Чёрный';
+                alert('Цвет сброшен на чёрный');
+                closeModal();
+                openInventory();
+                return;
+            }
+            if (!currentUser.inventory[col]) {
+                alert('У вас нет этого цвета!');
+                return;
+            }
+            await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ selected_color: col })
+            });
+            currentUser.selected_color = col;
+            alert(`Цвет "${col}" надет!`);
+            closeModal();
+            openInventory();
+        };
+        
+        window.openMarket = async function() {
+            await loadData();
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto;">
+                    <div class="flex-between"><h3>🏪 Рынок</h3><button class="btn btn-secondary" onclick="closeModal()">✕</button></div>
+                    <div id="marketList">
+                        ${marketListings.map(item => `
+                            <div class="market-item" onclick="buyFromMarket('${item.id}', '${item.itemName}', ${item.price}, '${item.seller_id}')">
+                                <div class="flex-between">
+                                    <div>
+                                        <strong>${escapeHtml(item.itemName)}</strong>
+                                        <div style="font-size: 12px;">${escapeHtml(item.seller_name)}</div>
+                                    </div>
+                                    <div>💰 ${item.price}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                        ${marketListings.length === 0 ? '<div class="card" style="text-align:center;">Нет товаров на рынке</div>' : ''}
+                    </div>
+                    <button class="float-btn" onclick="sellItem()" style="position: relative; bottom: 0; margin-top: 16px;">+</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.buyFromMarket = async function(listingId, itemName, price, sellerId) {
+            if (getBalance() < price) {
+                alert(`Недостаточно монет! Нужно ${price}`);
+                return;
+            }
+            
+            await fetch(`${API_URL}/api/market`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: listingId })
+            });
+            
+            await fetch(`${API_URL}/api/users/${currentUser.id}/balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: -price })
+            });
+            await fetch(`${API_URL}/api/users/${sellerId}/balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: price })
+            });
+            
+            let inventory = {...currentUser.inventory};
+            inventory[itemName] = (inventory[itemName] || 0) + 1;
+            await fetch(`${API_URL}/api/users/${currentUser.id}/inventory`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ inventory: inventory })
+            });
+            
+            currentUser.balance -= price;
+            currentUser.inventory = inventory;
+            alert(`Вы купили "${itemName}" за ${price} монет!`);
+            closeModal();
+            openMarket();
+        };
+        
+        window.sellItem = function() {
+            let inventory = currentUser.inventory || {};
+            let items = Object.keys(inventory).filter(k => k !== 'Чёрный' && !k.startsWith('Кейс:'));
+            if (items.length === 0) {
+                alert('Нет предметов для продажи');
+                return;
+            }
+            
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>Выберите предмет для продажи</h3>
+                    ${items.map(item => `
+                        <div class="card" style="cursor: pointer; margin-bottom: 8px;" onclick="selectItemToSell('${item}')">
+                            <strong>${escapeHtml(item)}</strong> (x${inventory[item]})
+                        </div>
+                    `).join('')}
+                    <button class="btn btn-secondary" style="width:100%; margin-top: 16px;" onclick="closeModal()">Отмена</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.selectItemToSell = function(itemName) {
+            let price = prompt(`Введите цену для "${itemName}" в Gyscoin:`);
+            if (!price || isNaN(price) || parseInt(price) <= 0) {
+                alert('Некорректная цена');
+                return;
+            }
+            
+            let inventory = {...currentUser.inventory};
+            if (!inventory[itemName] || inventory[itemName] <= 0) {
+                alert('У вас нет этого предмета');
+                return;
+            }
+            
+            inventory[itemName] -= 1;
+            if (inventory[itemName] === 0) delete inventory[itemName];
+            
+            fetch(`${API_URL}/api/users/${currentUser.id}/inventory`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ inventory: inventory })
+            });
+            
+            fetch(`${API_URL}/api/market`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    seller_id: currentUser.id,
+                    seller_name: currentUser.username,
+                    item_name: itemName,
+                    price: parseInt(price)
+                })
+            });
+            
+            currentUser.inventory = inventory;
+            alert(`"${itemName}" выставлен на рынок за ${price} монет!`);
+            closeModal();
+            openMarket();
+        };
+        
+        window.claimCoins = async function() {
+            let newBalance = currentUser.balance + 100;
+            await fetch(`${API_URL}/api/users/${currentUser.id}/balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: 100 })
+            });
+            currentUser.balance = newBalance;
+            alert('+100 Gyscoin!');
+            renderTabContent();
+        };
+        
+        // ============ DEV ПАНЕЛЬ ============
+        window.openDevPanel = async function() {
+            if (currentUser.email !== 'savostinmatvej501@gmail.com') return;
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content" style="width: 90%; max-width: 500px; max-height: 70vh; overflow-y: auto;">
+                    <div class="flex-between"><h3>👨‍💻 Панель разработчика</h3><button class="btn btn-secondary" onclick="closeModal()">✕</button></div>
+                    ${usersList.map(u => `
+                        <div class="flex-between" style="margin-bottom: 12px; padding: 8px; background: var(--border); border-radius: 12px;">
+                            <div>
+                                <strong>${escapeHtml(u.username)}</strong>
+                                <div style="font-size: 12px;">${escapeHtml(u.email)}</div>
+                                <div>💰 ${u.balance}</div>
+                            </div>
+                            <div class="flex-row">
+                                <input type="number" id="amount_${u.id}" placeholder="Сумма" style="width: 70px; padding: 4px; border-radius: 20px;">
+                                <button class="btn btn-primary" style="padding: 4px 8px;" onclick="giveCoins('${u.id}')">💰</button>
+                                <button class="btn btn-danger" style="padding: 4px 8px;" onclick="toggleVerified('${u.id}')">${u.verified ? '🔴' : '⭐'}</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.giveCoins = async function(userId) {
+            let amount = parseInt(document.getElementById(`amount_${userId}`).value);
+            if (!amount || amount <= 0) {
+                alert('Введите сумму');
+                return;
+            }
+            await fetch(`${API_URL}/api/users/${userId}/balance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ amount: amount })
+            });
+            alert(`Выдано ${amount} монет`);
+            closeModal();
+            openDevPanel();
+            await loadData();
+        };
+        
+        window.toggleVerified = async function(userId) {
+            let user = usersList.find(u => u.id === userId);
+            if (!user) return;
+            await fetch(`${API_URL}/api/users/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ verified: user.verified ? 0 : 1 })
+            });
+            alert(user.verified ? 'Галочка забрана' : 'Галочка выдана');
+            closeModal();
+            openDevPanel();
+            await loadData();
+        };
+        
+        // ============ ОБЩИЕ ФУНКЦИИ ============
+        window.uploadAvatar = async function(input) {
+            let file = input.files[0];
+            if (file) {
+                let reader = new FileReader();
+                reader.onload = async (e) => {
+                    await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ avatar: e.target.result })
+                    });
+                    currentUser.avatar = e.target.result;
+                    renderTabContent();
+                };
+                reader.readAsDataURL(file);
+            }
+        };
+        
+        window.openEditProfile = function() {
+            let modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>Редактировать профиль</h3>
+                    <input type="text" id="editName" value="${escapeHtml(currentUser.username)}" placeholder="Имя">
+                    <input type="text" id="editTag" value="${escapeHtml(currentUser.user_tag)}" placeholder="@юзернейм">
+                    <textarea id="editBio" rows="3" placeholder="О себе">${escapeHtml(currentUser.bio || '')}</textarea>
+                    <input type="password" id="editPass" placeholder="Новый пароль">
+                    <div class="flex-between"><span>Скрыть @юзернейм</span><label class="switch"><input type="checkbox" id="editHideTag" ${currentUser.hide_user_tag ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <div class="flex-between"><span>Скрыть время онлайн</span><label class="switch"><input type="checkbox" id="editHideLastSeen" ${currentUser.hide_last_seen ? 'checked' : ''}><span class="slider"></span></label></div>
+                    <button class="btn btn-primary" style="width:100%; margin-top: 16px;" onclick="saveProfile()">Сохранить</button>
+                    <button class="btn btn-secondary" style="width:100%; margin-top: 8px;" onclick="closeModal()">Отмена</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        };
+        
+        window.saveProfile = async function() {
+            let newName = document.getElementById('editName').value;
+            let newTag = document.getElementById('editTag').value.trim();
+            let newBio = document.getElementById('editBio').value;
+            let newPass = document.getElementById('editPass').value;
+            let hideTag = document.getElementById('editHideTag').checked;
+            let hideLastSeen = document.getElementById('editHideLastSeen').checked;
+            
+            if (!newTag.startsWith('@')) newTag = '@' + newTag;
+            
+            let updateData = {
+                username: newName,
+                user_tag: newTag,
+                bio: newBio,
+                hide_user_tag: hideTag ? 1 : 0,
+                hide_last_seen: hideLastSeen ? 1 : 0
+            };
+            if (newPass) updateData.password = newPass;
+            
+            let res = await fetch(`${API_URL}/api/users/${currentUser.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updateData)
+            });
+            
+            if (res.ok) {
+                currentUser.username = newName;
+                currentUser.user_tag = newTag;
+                currentUser.bio = newBio;
+                currentUser.hide_user_tag = hideTag;
+                currentUser.hide_last_seen = hideLastSeen;
+                if (newPass) currentUser.password = newPass;
+                closeModal();
+                renderTabContent();
+                await loadData();
+            } else {
+                alert('Имя или @юзернейм заняты');
+            }
+        };
+        
+        window.toggleTheme = function() {
+            theme = theme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', theme);
+            applyTheme();
+            renderTabContent();
+        };
+        
+        window.logout = async function() {
+            if (confirm('Выйти?')) {
+                await fetch(`${API_URL}/api/users/${currentUser.id}/online`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_online: false })
+                });
+                currentUser = null;
+                localStorage.removeItem('userId');
+                showAuth();
+            }
+        };
+        
+        window.deleteAccount = async function() {
+            if (confirm('Удалить аккаунт навсегда?')) {
+                alert('В разработке');
+            }
+        };
+        
+        window.closeModal = function() {
+            let modal = document.querySelector('.modal');
+            if (modal) modal.remove();
+        };
+        
+        checkSession();
+    </script>
+</body>
+  </html>
